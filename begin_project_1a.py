@@ -102,18 +102,18 @@ n = len(trainX)
 test_accuracy = []
 train_cost = []
 
-start = time.time() 
+start = time.time()
 
 for i in range(epochs):
     if i % 1000 == 0:
         print(i)
-    
+
     trainX, trainY = shuffle_data(trainX, trainY)
     cost = 0.0
     for start, end in zip(range(0, n, batch_size), range(batch_size, n, batch_size)):
         cost += train(trainX[start:end], trainY[start:end])
     train_cost = np.append(train_cost, cost/(n // batch_size))
-    
+
     test_accuracy = np.append(test_accuracy, np.mean(np.argmax(testY, axis=1) == predict(testX)))
 
 end=time.time()
