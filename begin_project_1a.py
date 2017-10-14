@@ -120,7 +120,7 @@ for i in batch_size_array:
         test_accuracy = np.append(test_accuracy, np.mean(np.argmax(testY, axis=1) == predict(testX)))
 
     end=time.time()
-    timeTakenArray[i]=(start-end)/batch_size
+    timeTakenArray.append()(start-end)/batch_size)
 
 #print('%.1f accuracy at %d iterations'%(np.max(test_accuracy)*100, np.argmax(test_accuracy)+1))
 #print('BATCH SIZE=')
