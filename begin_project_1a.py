@@ -91,37 +91,40 @@ print(trainX.shape, trainY.shape)
 print(testX.shape, testY.shape)
 
 # first, experiment with a small sample of data
-##trainX = trainX[:1000]
-##trainY = trainY[:1000]
-##testX = testX[-250:]
-##testY = testY[-250:]
+trainX = trainX[:100]
+trainY = trainY[:100]
+testX = testX[-250:]
+testY = testY[-250:]
 
 
 # train and test
 n = len(trainX)
 test_accuracy = []
 train_cost = []
+timeTakenArray=[]
+batch_size_array=[4,8,16,32,64]
 
-start = time.time()
+for i in batch_size_array:
+    batch_size=batch_size_array[i]
+    start = time.time()
+    for i in range(epochs):
+        if i % 1000 == 0:
+            print(i)
 
-for i in range(epochs):
-    if i % 1000 == 0:
-        print(i)
+        trainX, trainY = shuffle_data(trainX, trainY)
+        cost = 0.0
+        for start, end in zip(range(0, n, batch_size), range(batch_size, n, batch_size)):
+            cost += train(trainX[start:end], trainY[start:end])
+        train_cost = np.append(train_cost, cost/(n // batch_size))
 
-    trainX, trainY = shuffle_data(trainX, trainY)
-    cost = 0.0
-    for start, end in zip(range(0, n, batch_size), range(batch_size, n, batch_size)):
-        cost += train(trainX[start:end], trainY[start:end])
-    train_cost = np.append(train_cost, cost/(n // batch_size))
+        test_accuracy = np.append(test_accuracy, np.mean(np.argmax(testY, axis=1) == predict(testX)))
 
-    test_accuracy = np.append(test_accuracy, np.mean(np.argmax(testY, axis=1) == predict(testX)))
+    end=time.time()
+    timeTakenArray[i]=(start-end)/batch_size
 
-end=time.time()
-avgTimePerUpdate=(start-end)/batch_size
-
-print('%.1f accuracy at %d iterations'%(np.max(test_accuracy)*100, np.argmax(test_accuracy)+1))
-print('BATCH SIZE=')
-print(batch_size)
+#print('%.1f accuracy at %d iterations'%(np.max(test_accuracy)*100, np.argmax(test_accuracy)+1))
+#print('BATCH SIZE=')
+#print(batch_size)
 
 #Plots
 plt.figure()
@@ -139,8 +142,8 @@ plt.title('test accuracy')
 plt.savefig('p1a_sample_accuracy.png')
 
 plt.figure()
-plt.plot(batch_size, avgTimePerUpdate)
-plt.xlabel('iterations')
+plt.plot(batch_size_array, timeTakenArray)
+plt.xlabel('batch size')
 plt.ylabel('time')
 plt.title('Parameter update time')
 plt.savefig('p1a_sample_paratime.png')
