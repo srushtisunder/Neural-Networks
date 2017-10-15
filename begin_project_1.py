@@ -39,18 +39,19 @@ def shuffle_data (samples, labels):
     return samples, labels
 
 
-decay = 1e-3
+decay = 
 learning_rate = 0.01
 epochs = 1000
-batch_size = 32
-neuronArray=[5,10,15,20,25]
-numberOfNeuron=10
+batch_size = 16
+##q2
+batch_size_array=[4,8,16,32,64]
 timeTakenArray=[]
-batchArray=[4,8,16,32,64]
+##q3
+arrayOfNeuron=[5,10,15,20,25]
+numberOfNeuron=10
 
-# theano expressions
-X = T.matrix() #features
-Y = T.matrix() #output
+arrayOfDecay=[0,1e-3,1e-6,1e-9,1e-12]
+
 
 
 #read train data
@@ -78,8 +79,23 @@ testY[np.arange(test_Y.shape[0]), test_Y-1] = 1
 print(trainX.shape, trainY.shape)
 print(testX.shape, testY.shape)
 
+# first, experiment with a small sample of data
+trainX = trainX[:1000]
+trainY = trainY[:1000]
+testX = testX[-250:]
+testY = testY[-250:]
 
-#for numberOfNeuron in neuronArray:
+# theano expressions
+X = T.matrix() #features
+Y = T.matrix() #output
+
+#for numberOfNeuron in arrayOfNeuron:
+print('number of Neurons in the hidden layer')
+print(numberOfNeuron)
+print('batch size')
+print(batch_size)
+print('decay rate')
+print(decay)
 
 w1, b1 = init_weights(36, numberOfNeuron), init_bias(numberOfNeuron) #weights and biases from input to hidden layer
 w2, b2 = init_weights(numberOfNeuron, 6, logistic=False), init_bias(6) #weights and biases from hidden to output layer
@@ -99,20 +115,15 @@ predict = theano.function(inputs=[X], outputs=y_x, allow_input_downcast=True)
 
 
 
-# first, experiment with a small sample of data
-##trainX = trainX[:1000]
-##trainY = trainY[:1000]
-##testX = testX[-250:]
-##testY = testY[-250:]
-
 
 # train and test
 n = len(trainX)
 test_accuracy = []
 train_cost = []
-#for batch_size in batchArray:
-start = timeit.default_timer()
 
+start = timeit.default_timer()
+#for j in range(len(batch_size_array)):
+#    batch_size=batch_size_array[j]
 for i in range(epochs):
     if i % 1000 == 0:
         print(i)
@@ -125,42 +136,48 @@ for i in range(epochs):
 
     test_accuracy = np.append(test_accuracy, np.mean(np.argmax(testY, axis=1) == predict(testX)))
 
-end= timeit.default_timer()
+print('%.1f accuracy at %d iterations'%(np.max(test_accuracy)*100, np.argmax(test_accuracy)+1))
+end = timeit.default_timer()
 timeTakenArray.append((end-start)/batch_size)
 
-
-print('%.1f accuracy at %d iterations'%(np.max(test_accuracy)*100, np.argmax(test_accuracy)+1))
-
+#print(' batch_size=')
+#print(batch_size)
+#print(' update time=')
+#print(((end-start)/batch_size))
 
 #Plots
+
 plt.figure()
 plt.plot(range(epochs), train_cost)
 plt.xlabel('iterations')
 plt.ylabel('cross-entropy')
-plt.title('training cost | bs=32 | N=10 | decay=1e-3')
-plt.savefig('p1a_q4a_sample_cost_decay=1e-3.png')
+plt.title('training cost/error | bs=16 | N=10 | Decay=10')
+plt.savefig('P1A,Q4a_sample_cost|Decay=10.png')
 
 plt.figure()
 plt.plot(range(epochs), test_accuracy)
 plt.xlabel('iterations')
 plt.ylabel('accuracy')
-plt.title('test accuracy | bs=32 | N=10 | decay=1e-3')
-plt.savefig('p1a_q4b_sample_accuracy_decay=1e-3.png')
-'''
-#for P1A Q2b
-plt.figure()
-plt.plot(batchArray, timeTakenArray)
-plt.xlabel('batchArray')
-plt.ylabel('timeTakenArray')
-plt.title('parameter update time')
-plt.savefig('p1a_parameter_update_time.png')
+plt.title('test accuracy | bs=16 | N=10 | Decay=10')
+plt.savefig('P1A,Q4a_sample_accuracy|Decay=10.png')
 
-#for P1a Q3b_updatetime_vs_numberofneurons
-plt.figure()
-plt.plot(neuronArray, timeTakenArray)
-plt.xlabel('Number Of Neurons')
-plt.ylabel('Time Taken')
-plt.title('parameter update time')
-plt.savefig('p1a_q3b_parameter_update_time.png')
 '''
+##for q2
+plt.figure()
+plt.plot(batch_size_array, timeTakenArray)
+plt.xlabel('batch size')
+plt.ylabel('time')
+plt.title('Parameter update time')
+plt.savefig('P1A,Q2b_updatetime_vs_batchsize.png')
+
+##for q3
+plt.figure()
+plt.plot(arrayOfNeuron, timeTakenArray)
+plt.xlabel('number of neurons')
+plt.ylabel('time')
+plt.title('Parameter update time')
+plt.savefig('P1A,Q3b_updatetime_vs_numberofneurons.png')
+'''
+
+
 #plt.show()
